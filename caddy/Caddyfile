@@ -1,0 +1,25 @@
+{
+  email email@example.com
+  ocsp_stapling off
+}
+
+localhost {
+  basicauth /* {
+    {$ADMIN_USER} {$ADMIN_PASSWORD_HASH}
+  }
+
+	reverse_proxy wg-easy:51821
+
+  header {
+    Permissions-Policy interest-cohort=()
+    Strict-Transport-Security max-age=31536000;
+    X-Content-Type-Options nosniff
+    X-Frame-Options DENY
+    Referrer-Policy no-referrer-when-downgrade
+  }
+
+  encode {
+    zstd
+    gzip
+  }
+}

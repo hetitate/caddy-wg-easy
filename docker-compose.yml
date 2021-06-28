@@ -1,0 +1,52 @@
+version: "3.8"
+
+networks:
+  wg:
+
+services:
+  caddy:
+    image: caddy:alpine
+    container_name: caddy
+    restart: unless-stopped
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    ports:
+      - "8080:80"
+      - "443:443"
+    environment:
+      - ADMIN_USER=${ADMIN_USER:-admin}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-JDJhJDE0JE91S1FrN0Z0VEsyWmhrQVpON1VzdHVLSDkyWHdsN0xNbEZYdnNIZm1pb2d1blg4Y09mL0ZP}
+    networks:
+      - wg
+
+  wg-easy:  
+    container_name: wg-easy
+    restart: unless-stopped
+    build:
+      context: ./wg-easy
+    volumes:
+      - ./wg-easy:/etc/wireguard
+    ports:
+      - "51820:51820/udp"
+      - "51821"
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.src_valid_mark=1
+    networks:
+      - wg
+    environment:
+      # ⚠️ Required:
+      # Change this to your host's public address
+      - WG_HOST=localhost
+
+      # Optional:
+      # - PASSWORD=foobar123
+      # - WG_PORT=51820
+      # - WG_DEFAULT_ADDRESS=10.8.0.x
+      # - WG_DEFAULT_DNS=1.1.1.1
+      # - WG_ALLOWED_IPS=192.168.15.0/24, 10.0.1.0/24
+    
